@@ -7,14 +7,14 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\VoiceData;
 use Illuminate\Support\Facades\Validator;
-use speech_recognition as sr;
 use Illuminate\Support\Str;
+use speech_recognition as sr;
 
 class VoiceDataController extends Controller
 {
     public function recognizeAndStore(Request $request)
     {
-//        // Validate the request
+        // Validate the request
 //        $validator = Validator::make($request->all(), [
 //            'audio' => 'required|mimetypes:audio/mpeg,audio/wav',
 //        ]);
@@ -37,12 +37,20 @@ class VoiceDataController extends Controller
         // Retrieve the recognized text from the output
         $recognizedText = trim($output);
 
+        // Extract the original and filtered text
+        $originalText = $this->extractOriginalText($recognizedText);
+        $filteredText = $this->extractFilteredText($recognizedText);
+
         // Store the recognized text in the database
         $voiceData = new VoiceData();
         $voiceData->text = $recognizedText;
         $voiceData->save();
 
-        return response()->json(['text' => $recognizedText], 200);
+        // Return the original and filtered text as key-value pairs
+        return response()->json([
+            'original_text' => $originalText,
+            'filtered_text' => $filteredText,
+        ], 200);
     }
 
     /**
@@ -56,5 +64,49 @@ class VoiceDataController extends Controller
         $randomName = Str::random(16);
         return "{$randomName}.{$extension}";
     }
+
+
+
+    /**
+     * Extract the original text from the recognized text.
+     *
+     * @param string $recognizedText
+     * @return string|null
+     */
+    private function extractOriginalText($recognizedText)
+    {
+        $originalTextStart = "Original Text: ";
+        $originalTextEnd = "\n";
+        $startIndex = strpos($recognizedText, $originalTextStart);
+        $endIndex = strpos($recognizedText, $originalTextEnd, $startIndex);
+        if ($startIndex !== false && $endIndex !== false) {
+            return trim(substr($recognizedText, $startIndex + strlen($originalTextStart), $endIndex - $startIndex - strlen($originalTextStart)));
+        }
+        return null;
+    }
+
+
+    /**
+     * Extract the filtered text from the recognized text.
+     *
+     * @param string $recognizedText
+     * @return array|null
+     */
+    private function extractFilteredText($recognizedText)
+    {
+        $filteredTextStart = "Filtered Text: ";
+        $filteredTextEnd = "']";
+        $startIndex = strpos($recognizedText, $filteredTextStart);
+        $endIndex = strpos($recognizedText, $filteredTextEnd, $startIndex);
+        if ($startIndex !== false && $endIndex !== false) {
+            $filteredTextString = substr($recognizedText, $startIndex + strlen($filteredTextStart), $endIndex - $startIndex - strlen($filteredTextStart));
+            $filteredTextArray = explode("', '", $filteredTextString);
+            return array_map('trim', $filteredTextArray);
+        }
+        return null;
+    }
+
+
+
 
 }
