@@ -9,9 +9,76 @@ use App\Models\VoiceData;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use speech_recognition as sr;
+use OpenApi\Annotations as OA;
 
+/**
+ * @OA\Info(
+ *     title="API Documentation",
+ *     version="1.0.0",
+ *     description="API Documentation for your project",
+ *     @OA\Contact(
+ *         email="your-email@example.com",
+ *         name="Your Name"
+ *     )
+ * )
+ */
 class VoiceDataController extends Controller
 {
+
+
+
+    /**
+     * Store the voice data and perform recognition.
+     *
+     * @OA\Post(
+     *     path="/api/voice/recognize",
+     *     tags={"Voice Data"},
+     *     summary="Recognize and store voice data",
+     *     description="Stores the audio file, performs voice recognition, and returns the recognized text.",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="audio",
+     *                     description="The audio file to recognize (allowed types: audio/mpeg, audio/wav).",
+     *                     type="file",
+     *                 ),
+     *             ),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="original_text",
+     *                 description="The original recognized text.",
+     *                 type="string",
+     *             ),
+     *             @OA\Property(
+     *                 property="filtered_text",
+     *                 description="The filtered recognized text.",
+     *                 type="array",
+     *                 @OA\Items(type="string"),
+     *             ),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Validation error",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="error",
+     *                 description="The validation errors.",
+     *                 type="object",
+     *             ),
+     *         ),
+     *     ),
+     * )
+     */
+
     public function recognizeAndStore(Request $request)
     {
         // Validate the request

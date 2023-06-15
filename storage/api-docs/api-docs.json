@@ -1,0 +1,81 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API Documentation",
+        "description": "API Documentation for your project",
+        "contact": {
+            "name": "Your Name",
+            "email": "your-email@example.com"
+        },
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/voice/recognize": {
+            "post": {
+                "tags": [
+                    "Voice Data"
+                ],
+                "summary": "Recognize and store voice data",
+                "description": "Stores the audio file, performs voice recognition, and returns the recognized text.",
+                "operationId": "257037f460d4777a772317d83c2c1308",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "audio": {
+                                        "description": "The audio file to recognize (allowed types: audio/mpeg, audio/wav).",
+                                        "type": "file"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "original_text": {
+                                            "description": "The original recognized text.",
+                                            "type": "string"
+                                        },
+                                        "filtered_text": {
+                                            "description": "The filtered recognized text.",
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "description": "The validation errors.",
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
